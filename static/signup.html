@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign Up</title>
+  </head>
+  <body>
+    <h1>Welcome to Firebase Authentication with Golang</h1>
+    <h2>Register to access premium content</h2>
+    <form action="">
+      <label for="name">Full Name</label>
+      <input type="text" name="name" id="name" />
+      <label for="email">Email</label>
+      <input type="email" name="email" id="email" />
+      <label for="password">Password</label>
+      <input type="password" name="password" id="password" />
+      <button type="submit" id="signup">Sign up</button>
+    </form>
+    <p>Already have an account? <a href="index.html">Sign in</a></p>
+    <p id="error"></p>
+    <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+      import {
+        getAuth,
+        createUserWithEmailAndPassword,
+        onAuthStateChanged,
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
+
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyC0nfPfMHoWOsp2jAOR6xvC9IFUEgHYr-I",
+        authDomain: "goauthapp-6556e.firebaseapp.com",
+        projectId: "goauthapp-6556e",
+        storageBucket: "goauthapp-6556e.appspot.com",
+        messagingSenderId: "479029750537",
+        appId: "1:479029750537:web:0e2b86c4c3cddb66f201d8",
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+
+      function signUp(e) {
+        e.preventDefault();
+
+        const email = document.querySelector("#email").value;
+        const password = document.querySelector("#password").value;
+
+        createUserWithEmailAndPassword(auth, email, password)
+          .then((userCredential) => {
+            // console.log(userCredential.user);
+            const user = userCredential.user;
+            console.log(user);
+            user
+              .getIdToken()
+              .then((idToken) => {
+                // redirect to premium page
+                window.location.href = `http://localhost:8080/premium?auth-token=${idToken}`;
+              })
+              .catch((err) => {
+                document.querySelector(
+                  "#error"
+                ).textContent = `An error occured: ${err.message}`;
+                window.location.href = "http://localhost:8080/signup.html";
+                console.error(err.code, err.message);
+              });
+          })
+          .catch((err) => {
+            document.querySelector(
+              "#error"
+            ).textContent = `An error occured: ${err.message}`;
+            console.error(err.code, err.message);
+          });
+
+        clearForm();
+      }
+
+      document.getElementById("signup").onclick = signUp;
+
+      function clearForm() {
+        document.querySelector("#email").value = "";
+        document.querySelector("#password").value = "";
+      }
+    </script>
+  </body>
+</html>

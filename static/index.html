@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home page</title>
+  </head>
+  <body>
+    <h1>Welcome to Firebase Authentication with Golang</h1>
+    <h2>Login to access premium content</h2>
+    <form action="">
+      <label for="email">Email</label>
+      <input type="email" name="email" id="email" />
+      <label for="password">Password</label>
+      <input type="password" name="password" id="password" />
+      <button type="submit" id="signin">Sign In</button>
+    </form>
+    <p>Or <a href="signup.html">Sign up</a></p>
+    <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+      import {
+        getAuth,
+        signInWithEmailAndPassword,
+        signInAnonymously,
+        onAuthStateChanged,
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
+
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyC0nfPfMHoWOsp2jAOR6xvC9IFUEgHYr-I",
+        authDomain: "goauthapp-6556e.firebaseapp.com",
+        projectId: "goauthapp-6556e",
+        storageBucket: "goauthapp-6556e.appspot.com",
+        messagingSenderId: "479029750537",
+        appId: "1:479029750537:web:0e2b86c4c3cddb66f201d8",
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+
+      //   signInAnonymously(auth).then((result) => {
+      //     console.log("Signed in user", result);
+      //   }).catch((err) => {
+      //     console.error(err.message);
+      //   });
+
+      function login(e) {
+        e.preventDefault();
+        const email = document.querySelector("#email").value;
+        const password = document.querySelector("#password").value;
+        // console.log(email, password);
+        signInWithEmailAndPassword(auth, email, password)
+          .then((userCredential) => {
+            const user = userCredential.user;
+            user
+              .getIdToken()
+              .then((idToken) => {
+                // redirect to the premium page
+                window.location.href = `http://localhost:8080/premium?auth-token=${idToken}`;
+                // fetch("http://localhost:8080/premium", {
+                //   method: "GET",
+                //   headers: {
+                //     "auth-token": idToken,
+                //   },
+                // })
+                //   .then((res) => {
+                //     const contentType = res.headers.get("content-type");
+                //     if (
+                //       contentType &&
+                //       contentType.indexOf("application/json") !== -1
+                //     ) {
+                //       return res.json();
+                //     } else {
+                //       return res.text();
+                //     }
+                //   })
+                //   .then((data) => {
+                //     if (typeof data === "string") {
+                //       console.log("Received Text response", data);
+                //     } else {
+                //       console.log("Received JSON response", data);
+                //     }
+                //   })
+                //   .catch((err) => {
+                //     console.error("Fetch error: ", err);
+                //   });
+                // console.log(typeof idToken);
+              })
+              .catch((err) => {
+                alert("Failed to authorize token");
+                window.location.href = 'http://localhost:8080/';
+                console.error("Token error: ", err);
+              });
+          })
+          .catch((err) => {
+            console.log("Sign-in error: ", err);
+          });
+
+        clearForm();
+      }
+
+      function clearForm() {
+        document.querySelector("#email").value = "";
+        document.querySelector("#password").value = "";
+      }
+
+      document.getElementById("signin").onclick = login;
+
+      // checking if the user is logged in
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          console.log(user);
+        } else {
+          console.log("No user signed in");
+        }
+      });
+
+      // `user.accessToken` will be used
+    </script>
+  </body>
+</html>
